@@ -1,7 +1,6 @@
 (ns lambdaisland.uniontypes.core
-  (:require
-   [clojure.walk :refer [prewalk]]
-   [clojure.spec :as s]))
+  (:require [clojure.walk :refer [prewalk]]
+            [clojure.spec :as s]))
 
 (s/def ::or-spec-desc (s/cat :or #{'or}
                              :cases (s/+ (s/cat :name keyword? :spec any?))) )
@@ -35,8 +34,6 @@
       (let [parts (interpose ", " xs)]
         (str (apply str (butlast parts)) "and " (last parts))))
     ""))
-
-(meta conj)
 
 (defn- spaces
   ^{:test #(assert (= (spaces 6) "      "))}

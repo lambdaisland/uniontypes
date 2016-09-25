@@ -31,7 +31,7 @@ Provides a `case-of` macro, which does case matching based on which branch in an
     :announced date
     (str "Available on " date ".")
 
-    :clojure.spec/invalid msg
+    :spec/invalid msg
     (str "Not a valid availability: " msg)))
 ```
 
