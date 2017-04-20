@@ -131,8 +131,3 @@
     (cond-> (case-of-codegen spec val branches actual-branches cljs?)
             cljs? fix-clojurescript-namespace)))
 
-(defmacro case-of [& args]
-  (let [cljs? (boolean (:ns &env))]
-    (case-of* args cljs?)))
-
-(s/fdef case-of :args ::case-of-args)
