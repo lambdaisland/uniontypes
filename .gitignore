@@ -10,3 +10,4 @@ pom.xml.asc
 .hgignore
 .hg/
 /resources/public/js/compiled
+.DS_Store
