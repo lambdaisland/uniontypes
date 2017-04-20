@@ -3,12 +3,16 @@
             [clojure.spec :as s]))
 
 (s/def ::or-spec-desc (s/cat :or #{'or}
-                             :cases (s/+ (s/cat :name keyword? :spec any?))) )
+                             :cases (s/+ (s/cat :name keyword? :spec any?))))
 
 (s/def ::case-of-args (s/cat :spec qualified-keyword?
                              :val any?
-                             :branches (s/+ (s/alt :branch (s/cat :name simple-keyword? :binding any? :body any?)
-                                                   :invalid (s/cat :name #{:spec/invalid} :binding any? :body any?))) ))
+                             :branches (s/+ (s/alt :branch (s/cat :name keyword?
+                                                                  :binding any?
+                                                                  :body any?)
+                                                   :invalid (s/cat :name #{:spec/invalid}
+                                                                   :binding any?
+                                                                   :body any?)))))
 
 (defn- select-branches [branches]
   (map second (filter #(= (first %) :branch) branches)))
@@ -25,8 +29,7 @@
 (defn- one? [xs]
   (= (count xs) 1))
 
-(defn- ^{:test #(assert (= (join-and [4 5 6]) "4, 5, and 6"))}
-  join-and
+(defn- ^{:test #(assert (= (join-and [4 5 6]) "4, 5, and 6"))} join-and
   [xs]
   (if (seq xs)
     (if (one? xs)
@@ -35,13 +38,12 @@
         (str (apply str (butlast parts)) "and " (last parts))))
     ""))
 
-(defn- spaces
-  ^{:test #(assert (= (spaces 6) "      "))}
+(defn- ^{:test #(assert (= (spaces 6) "      "))} spaces
   [n]
   (apply str (repeat n " ")))
 
 (defn- pprint-spec [spec indent]
-  (let [desc (s/describe (s/get-spec spec))
+  (let [desc         (s/describe (s/get-spec spec))
         extra-indent (+ (count "  (s/ ") (count (str (first desc))))]
     (str (spaces indent)
          "(s/def " spec "\n"
@@ -56,38 +58,57 @@
                (pprint-spec spec 4)
                "\n\n")
 
-    (seq missing)
-    (str "Add " (if (one? missing) "a case" "cases") " for " (join-and missing) ".")
+          (seq missing)
+          (str "Add " (if (one? missing) "a case" "cases") " for " (join-and missing) ".")
 
-    (and (seq missing) (seq unrecognized))
-    (str "\n")
+          (and (seq missing) (seq unrecognized))
+          (str "\n")
 
-    (seq unrecognized)
-    (str (str "Remove the " (if (one? unrecognized) "case" "cases") " " (join-and unrecognized) "."))))
+          (seq unrecognized)
+          (str (str "Remove the " (if (one? unrecognized) "case" "cases") " " (join-and unrecognized) "."))))
 
-(defn- check-branches-match [expected actual spec]
+(defn check-branches-match [expected actual spec]
   (let [unrecognized (remove expected actual)
-        missing (remove actual expected)]
+        missing      (remove actual expected)]
     (if (or (seq missing) (seq unrecognized))
       (throw
        (ex-info
         (branch-mismatch-message unrecognized missing spec)
         {:unrecognized unrecognized
-         :missing missing})))))
+         :missing      missing})))))
+
+(def ns-mappings {"clojure.spec" "cljs.spec"
+                  "clojure.core" "cljs.core"})
 
 (defn fix-clojurescript-namespace [form]
-  (prewalk (fn [x] (if (and (qualified-ident? x) (= (namespace x) "clojure.spec"))
-                     (cond-> (str "cljs.spec/" (name x))
+  (prewalk (fn [x]
+             (if (and (qualified-ident? x) (contains? ns-mappings (namespace x)))
+               (cond-> (str (get ns-mappings (namespace x)) "/" (name x))
                        (keyword? x) keyword
                        (symbol? x) symbol)
-                     x)) form))
+               x))
+           form))
 
-(defn- case-of-codegen [spec val branches]
+(defn get-expected-branches [spec-obj]
+  (let [{:keys [cases]} (s/conform ::or-spec-desc (s/describe spec-obj))]
+    (set (map :name cases))))
+
+(defn get-spec-obj [spec]
+  (let [spec-obj (s/get-spec spec)]
+    (if-not spec-obj
+      (throw (ex-info (str "Spec not found: " spec) {:spec spec :spec-obj spec-obj}))
+      spec-obj)))
+
+(defn case-of-codegen [spec val branches actual-branches cljs?]
   (let [val-sym (gensym "value")
         invalid (or (select-invalid branches)
                     {:binding '_
-                     :body `(throw (ex-info (explain-invalid ~spec ~val) {}))})]
+                     :body    `(throw (ex-info (explain-invalid ~spec ~val) {}))})]
     `(let [conformed# (s/conform ~spec ~val)]
+       ~(when cljs?
+          `(when (identical? js/goog.DEBUG true)
+             (let [expected-branches# (get-expected-branches (get-spec-obj ~spec))]
+               (check-branches-match expected-branches# ~actual-branches ~spec))))
        (if (= ::s/invalid conformed#)
          (let [~(:binding invalid) (s/explain-data ~spec ~val)]
            ~(:body invalid))
@@ -97,28 +118,21 @@
                          (concat acc [(-> b :name keyword)
                                       `(let [~(:binding b) ~val-sym]
                                          ~(:body b))]))
-                       ()
+                       []
                        (select-branches branches))))))))
 
 ;; macro-as-function so we can test the compile time exceptions
-(defn case-of* [args]
+(defn case-of* [args cljs?]
   (let [{:keys [spec val branches] :as conformed} (s/conform ::case-of-args args)
-        spec-obj (s/get-spec spec)]
-    (if-not spec-obj
-      (throw (ex-info (str "Spec not found: " spec) {:spec spec :spec-obj spec-obj :conformed conformed}))
-      (let [{:keys [cases]} (s/conform ::or-spec-desc (s/describe spec-obj))
-            expected-branches (set (map :name cases))
-            actual-branches (set (map (comp keyword :name) (select-branches branches)))]
-        (check-branches-match expected-branches actual-branches spec)
-        (case-of-codegen spec val branches)))))
+        actual-branches (set (map (comp keyword :name) (select-branches branches)))]
+    (when-not cljs?
+      (let [spec-obj (get-spec-obj spec)]
+        (check-branches-match (get-expected-branches spec-obj) actual-branches spec)))
+    (cond-> (case-of-codegen spec val branches actual-branches cljs?)
+            cljs? fix-clojurescript-namespace)))
 
 (defmacro case-of [& args]
-  ;; load the referenced namespace, this is mostly for ClojureScript, to load
-  ;; the spec definition at macro expansion time
-  (-> args first namespace symbol require)
-  (let [code (case-of* args)]
-    (if (:ns &env)
-      (fix-clojurescript-namespace code)
-      code)))
+  (let [cljs? (boolean (:ns &env))]
+    (case-of* args cljs?)))
 
 (s/fdef case-of :args ::case-of-args)
