@@ -12,8 +12,7 @@
                                                                    :body any?)
                                                    :branch (s/cat :name (s/and keyword? #(not= :spec/invalid %))
                                                                   :binding any?
-                                                                  :body any?)
-                                                   ))))
+                                                                  :body any?)))))
 
 (defn- select-branches [branches]
   (map second (filter #(= (first %) :branch) branches)))

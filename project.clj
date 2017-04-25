@@ -23,4 +23,6 @@
                  :main lambdaisland.uniontypes.test-runner
                  :optimizations :none}}}}
 
-  :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]]}})
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]]}}
+
+  :aliases {"test-all" ["do" "test" ["doo" "phantom" "test" "once"]]})
