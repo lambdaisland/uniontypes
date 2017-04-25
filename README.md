@@ -10,6 +10,14 @@ Provides a `case-of` macro, which does case matching based on which branch in an
 
 `case-of` checks at compile time that all cases are handled, and if not throws an exception.
 
+## Installation
+
+To install, add the following dependency to your project or build file:
+
+``` clojure
+[lambdaisland/uniontypes "0.2.0"]
+```
+
 ## Usage
 
 ``` clojure
