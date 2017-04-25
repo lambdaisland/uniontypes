@@ -7,12 +7,13 @@
 
 (s/def ::case-of-args (s/cat :spec qualified-keyword?
                              :val any?
-                             :branches (s/+ (s/alt :branch (s/cat :name keyword?
+                             :branches (s/+ (s/alt :invalid (s/cat :name #{:spec/invalid}
+                                                                   :binding any?
+                                                                   :body any?)
+                                                   :branch (s/cat :name (s/and keyword? #(not= :spec/invalid %))
                                                                   :binding any?
                                                                   :body any?)
-                                                   :invalid (s/cat :name #{:spec/invalid}
-                                                                   :binding any?
-                                                                   :body any?)))))
+                                                   ))))
 
 (defn- select-branches [branches]
   (map second (filter #(= (first %) :branch) branches)))
@@ -129,5 +130,4 @@
       (let [spec-obj (get-spec-obj spec)]
         (check-branches-match (get-expected-branches spec-obj) actual-branches spec)))
     (cond-> (case-of-codegen spec val branches actual-branches cljs?)
-            cljs? fix-clojurescript-namespace)))
-
+      cljs? fix-clojurescript-namespace)))

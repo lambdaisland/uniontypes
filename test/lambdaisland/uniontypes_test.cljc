@@ -64,7 +64,8 @@
                                  (str "Available again in " min " to " max "days" )
 
                                  :foo x
-                                 ""))
+                                 "")
+                false)
       (fail)
       (catch ExceptionInfo e
         (is (= #?(:clj (.getMessage e)
