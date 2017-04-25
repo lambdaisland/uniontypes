@@ -2,7 +2,9 @@
   (:require [lambdaisland.uniontypes.core :refer [case-of*] :as utcore]
             [clojure.spec :as s]))
 
-(defmacro case-of [& args]
+(defmacro case-of
+  {:style/indent 2}
+  [& args]
   (let [cljs? (boolean (:ns &env))]
     (case-of* args cljs?)))
 
