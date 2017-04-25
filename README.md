@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/lambdaisland/uniontypes.svg?branch=master)](https://travis-ci.org/lambdaisland/uniontypes)
+[![Clojars Project](https://img.shields.io/clojars/v/lambdaisland/uniontypes.svg)](https://clojars.org/lambdaisland/uniontypes)
+
 # lambdaisland/uniontypes
 
 Union Types (Algebraic Data Types) for Clojure and ClojureScript, based on clojure.spec.
@@ -37,6 +40,6 @@ Provides a `case-of` macro, which does case matching based on which branch in an
 
 ## License
 
-Copyright © 2016 Arne Brasseur
+Copyright © 2016-2017 Arne Brasseur
 
 Distributed under the Mozille Public License 2.0
