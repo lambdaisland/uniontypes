@@ -1,6 +1,6 @@
 (ns lambdaisland.uniontypes
   (:require [lambdaisland.uniontypes.core :refer [case-of*] :as utcore]
-            [clojure.spec :as s]))
+            [clojure.spec.alpha :as s]))
 
 (defmacro case-of
   {:style/indent 2}

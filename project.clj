@@ -1,11 +1,11 @@
 (defproject lambdaisland/uniontypes "0.2.0"
-  :description "Union Types (ADTs) based on clojure.spec"
+  :description "Union Types (ADTs) based on clojure.spec.alpha"
   :url "http://github.com/lambdaisland/uniontypes"
   :license {:name "Mozilla Public License 2.0"
             :url "https://www.mozilla.org/en-US/MPL/2.0/"}
 
-  :dependencies [[org.clojure/clojure "1.9.0-alpha15"]
-                 [org.clojure/clojurescript "1.9.521" :scope "provided"]]
+  :dependencies [[org.clojure/clojure "1.9.0-alpha17"]
+                 [org.clojure/clojurescript "1.9.542" :scope "provided"]]
 
   :doo {:build "test"}
 
