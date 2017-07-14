@@ -1,5 +1,5 @@
 (ns lambdaisland.uniontypes-test
-  (:require [clojure.spec :as s]
+  (:require [clojure.spec.alpha :as s]
             [clojure.test :refer [deftest is testing]]
             [lambdaisland.uniontypes #?(:clj :refer
                                         :cljs :refer-macros) [case-of]]
