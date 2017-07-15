@@ -1,4 +1,4 @@
-(defproject lambdaisland/uniontypes "0.2.0"
+(defproject lambdaisland/uniontypes "0.3.0"
   :description "Union Types (ADTs) based on clojure.spec.alpha"
   :url "http://github.com/lambdaisland/uniontypes"
   :license {:name "Mozilla Public License 2.0"

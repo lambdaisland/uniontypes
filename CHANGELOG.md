@@ -9,6 +9,11 @@ All notable changes to this project will be documented in this file. This change
 <!-- ### Removed -->
 <!-- ### Fixed -->
 
+## [0.3.0] - 2017-07-15
+### Changed
+- Upgrade to Clojure 1.9.0-alpha17
+- use the new `clojure.spec.alpha` namespace, instead of `clojure.spec` (thanks @frenchy64!)
+
 ## [0.2.0] - 2016-09-23
 ### Fixed
 - Compatibility with latest clojure.spec (1.9.0-alpha15)
