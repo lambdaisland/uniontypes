@@ -15,7 +15,7 @@ Provides a `case-of` macro, which does case matching based on which branch in an
 To install, add the following dependency to your project or build file:
 
 ``` clojure
-[lambdaisland/uniontypes "0.2.0"]
+[lambdaisland/uniontypes "0.3.0"]
 ```
 
 ## Usage
