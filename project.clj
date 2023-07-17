@@ -28,8 +28,10 @@
                  :main lambdaisland.uniontypes.test-runner
                  :optimizations :none}}}}
 
-  :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]]}}
+  :profiles {:kaocha {:dependencies [[lambdaisland/kaocha "1.85.1342"]]}
+             :dev {:dependencies [[org.clojure/test.check "0.9.0"]]}}
 
-  :aliases {"test-all" ["do"
+  :aliases {"kaocha" ["with-profile" "+kaocha" "run" "-m" "kaocha.runner"]
+            "test-all" ["do"
                         ["test"]
                         ["doo" "phantom" "test" "once"]]})
